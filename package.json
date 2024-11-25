@@ -1,0 +1,15 @@
+{
+  "name": "link-checker",
+  "version": "1.0.0",
+  "main": "check_links.js",
+  "scripts": {
+    "check": "node check_links.js"
+  },
+  "dependencies": {
+    "puppeteer": "^23.9.0"
+  },
+  "description": "npm install",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
