@@ -14,11 +14,18 @@ const puppeteer = require('puppeteer');
     const links = await page.$$eval('a', anchors => anchors.map(anchor => anchor.href));
     console.log(`Found ${links.length} links`);
 
-    const brokenLinks = [];
-    const filteredLinks = links.filter(link => new URL(link).hostname === ALLOWED_DOMAIN);
+    const validLinks = links.filter(link => {
+      try {
+        return link && new URL(link);
+      } catch {
+        return false;
+      }
+    });
 
+    const filteredLinks = validLinks.filter(link => new URL(link).hostname === ALLOWED_DOMAIN);
     console.log(`Checking ${filteredLinks.length} links within domain: ${ALLOWED_DOMAIN}`);
 
+    const brokenLinks = [];
     for (const link of filteredLinks) {
       console.log(`Checking link: ${link}`);
       try {
