@@ -22,7 +22,14 @@ const puppeteer = require('puppeteer');
       }
     });
 
-    const filteredLinks = validLinks.filter(link => new URL(link).hostname === ALLOWED_DOMAIN);
+    const filteredLinks = validLinks.filter(link => {
+      if (new URL(link).hostname !== ALLOWED_DOMAIN) {
+        console.log(`Skip: ${link}`);
+        return false;
+      }
+      return true;
+    });
+
     console.log(`Checking ${filteredLinks.length} links within domain: ${ALLOWED_DOMAIN}`);
 
     const brokenLinks = [];
