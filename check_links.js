@@ -2,6 +2,7 @@ const puppeteer = require('puppeteer');
 
 (async () => {
   const targetUrl = process.env.TARGET_URL || 'https://example.com';
+  const ALLOWED_DOMAIN = process.env.ALLOWED_DOMAIN || 'example.com';
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
 
@@ -13,9 +14,19 @@ const puppeteer = require('puppeteer');
     const links = await page.$$eval('a', anchors => anchors.map(anchor => anchor.href));
     console.log(`Found ${links.length} links`);
 
-    const brokenLinks = [];
+    const validLinks = links.filter(link => {
+      try {
+        return link && new URL(link);
+      } catch {
+        return false;
+      }
+    });
 
-    for (const link of links) {
+    const filteredLinks = validLinks.filter(link => new URL(link).hostname === ALLOWED_DOMAIN);
+    console.log(`Checking ${filteredLinks.length} links within domain: ${ALLOWED_DOMAIN}`);
+
+    const brokenLinks = [];
+    for (const link of filteredLinks) {
       console.log(`Checking link: ${link}`);
       try {
         const response = await page.goto(link, { waitUntil: 'domcontentloaded' });
