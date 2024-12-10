@@ -30,10 +30,14 @@ const puppeteer = require('puppeteer');
       return true;
     });
 
-    console.log(`Checking ${filteredLinks.length} links within domain: ${ALLOWED_DOMAIN}`);
+    const sortedLinks = filteredLinks.sort((a, b) => {
+      return a.localeCompare(b);
+    });
+
+    console.log(`Checking ${sortedLinks.length} links within domain: ${ALLOWED_DOMAIN}`);
 
     const brokenLinks = [];
-    for (const link of filteredLinks) {
+    for (const link of sortedLinks) {
       console.log(`Checking link: ${link}`);
       try {
         const response = await page.goto(link, { waitUntil: 'domcontentloaded' });
