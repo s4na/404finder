@@ -27,7 +27,7 @@ const puppeteer = require('puppeteer');
       }
     });
 
-    const filteredLinks = validLinks.filter(link => {
+    const domainFilteredLinks = validLinks.filter(link => {
       const url = new URL(link);
       if (url.hostname !== ALLOWED_DOMAIN) {
         console.log(`Skip: ${link}`);
@@ -36,7 +36,18 @@ const puppeteer = require('puppeteer');
       return true;
     });
 
-    const uniqueLinks = [...new Set(filteredLinks)];
+    const normalizedLinks = domainFilteredLinks.map(link => {
+      const url = new URL(link);
+      // フラグメントを除去
+      let finalLink = url.origin + url.pathname + url.search;
+      // 空のパスの場合、スラッシュを追加
+      if (url.pathname === '' || url.pathname === '/') {
+        finalLink = `${url.origin}/` + url.search;
+      }
+      return finalLink;
+    });
+
+    const uniqueLinks = [...new Set(normalizedLinks)];
     const sortedLinks = uniqueLinks.sort((a, b) => a.localeCompare(b));
 
     console.log(`Checking ${sortedLinks.length} unique links within domain: ${ALLOWED_DOMAIN}`);
@@ -45,15 +56,7 @@ const puppeteer = require('puppeteer');
     for (const link of sortedLinks) {
       console.log(`Checking link: ${link}`);
       try {
-        const url = new URL(link);
-        // フラグメントを除去
-        const linkToCheck = url.origin + url.pathname + url.search;
-
-        // 空のパスの場合、スラッシュを追加
-        const finalLink = url.pathname === '' ? `${url.origin}/` + url.search : linkToCheck;
-
-        console.log(`Navigating to: ${finalLink}`);
-        const response = await page.goto(finalLink, { waitUntil: 'domcontentloaded' });
+        const response = await page.goto(link, { waitUntil: 'domcontentloaded' });
 
         if (response) {
           const status = response.status();
