@@ -28,7 +28,8 @@ const puppeteer = require('puppeteer');
     });
 
     const filteredLinks = validLinks.filter(link => {
-      if (new URL(link).hostname !== ALLOWED_DOMAIN) {
+      const url = new URL(link);
+      if (url.hostname !== ALLOWED_DOMAIN) {
         console.log(`Skip: ${link}`);
         return false;
       }
@@ -44,7 +45,16 @@ const puppeteer = require('puppeteer');
     for (const link of sortedLinks) {
       console.log(`Checking link: ${link}`);
       try {
-        const response = await page.goto(link, { waitUntil: 'domcontentloaded' });
+        const url = new URL(link);
+        // フラグメントを除去
+        const linkToCheck = url.origin + url.pathname + url.search;
+
+        // 空のパスの場合、スラッシュを追加
+        const finalLink = url.pathname === '' ? `${url.origin}/` + url.search : linkToCheck;
+
+        console.log(`Navigating to: ${finalLink}`);
+        const response = await page.goto(finalLink, { waitUntil: 'domcontentloaded' });
+
         if (response) {
           const status = response.status();
           if (status === 404) {
