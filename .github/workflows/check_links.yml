@@ -26,4 +26,4 @@ jobs:
       env:
         TARGET_URL: ${{ secrets.TARGET_URL }}
         ALLOWED_DOMAIN: ${{ secrets.ALLOWED_DOMAIN }}
-      run: node check_links.js --no-sandbox
+      run: node check_links.js
